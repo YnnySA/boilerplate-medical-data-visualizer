@@ -39,11 +39,11 @@ def draw_cat_plot():
     #Agrupar y reformatear la Data
     df_cat['total'] = 1
     df_cat = df_cat.groupby(['cardio', 'variable', 'value'], as_index=False).count()
-    df_cat = df_cat.rename(columns={'total': 'count'})
+    df_cat = df_cat.rename(columns={'total': 'total'})
        
     # 7
     # Crear un gráfico categórico usando seaborn
-    fig = sns.catplot(x='variable', y='count', hue='value', col='cardio', data=df_cat, kind='bar', height=5, aspect=1)
+    fig = sns.catplot(x='variable', y='total', hue='value', col='cardio', data=df_cat, kind='bar', height=5, aspect=1)
 
     # 8
     # Obtener la figura de salida y almacenarla en una variable fig
