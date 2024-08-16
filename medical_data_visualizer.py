@@ -47,7 +47,7 @@ def draw_cat_plot():
 
     # 8
     # Obtener la figura de salida y almacenarla en una variable fig
-    fig = fig = fig.fig
+    fig = fig.fig
 
     # 9
     fig.savefig('catplot.png')
@@ -58,39 +58,35 @@ def draw_heat_map():
     # 11
     # Limpiar los datos de la variable df_heat
     df_heat = df[
-        (df['height'] >= df['height'].quantile(0.025)) & 
+        (df['ap_lo'] <= df['ap_hi']) &
+        (df['height'] >= df['height'].quantile(0.025)) &
         (df['height'] <= df['height'].quantile(0.975)) &
-        (df['weight'] >= df['weight'].quantile(0.025)) & 
+        (df['weight'] >= df['weight'].quantile(0.025)) &
         (df['weight'] <= df['weight'].quantile(0.975))
     ]
 
     # 12
     # Calcular la matrix de correlación
     corr = df_heat.corr()
-
+    
     # 13
     # Generar una máscara para el triángulo ascendente y almacenar en la variable mask
     mask = np.triu(np.ones_like(corr, dtype=bool))
-
+    
     # 14
     # Cagar la figura de Matplotlib
     fig, ax = plt.subplots(figsize=(10, 8))
 
     # 15
     # Graficar la matrix de correlación
-    sns.heatmap(corr, mask=mask, fmt=".2f", cmap='coolwarm', square=True)
-    
-    # Añadir anotaciones manualmente
-    for i in range(len(corr)):
-        for j in range(len(corr)):
-            if not mask[i, j]:  # Solo anotar los valores visibles
-                ax.text(j + 0.5, i + 0.5, f"{corr.iloc[i, j]:.2f}", 
-                        ha='center', va='center', color='black')
-    # Títulos
+    sns.heatmap(corr, mask=mask, annot=True, fmt='.1f', cmap='coolwarm', linewidths=0.5)
+
+            
+       # Títulos
     plt.title('Heat Map of Correlation Matrix')
     plt.show()
 
     # 16
     fig.savefig('heatmap.png')
     return fig
-
+  
