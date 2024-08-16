@@ -16,7 +16,6 @@ df["BMI"] = df["weight"] / (df["height_meters"]**2)
 df['overweight'] = (df["BMI"] > 25).astype(int)
 # Quitar las columnas temporales de heigt_meters y BMI
 df.drop(columns = ["height_meters", "BMI"], inplace=True)
-
 # 3
 #Normalizar el colesterol ("choresterol")
 df["cholesterol"] = (
@@ -30,46 +29,68 @@ df["gluc"] = (
 # 4
 def draw_cat_plot():
     # 5
-    df_cat = None
-
-
-    # 6
-    df_cat = None
+    #Crear un DataFrame para cat con la función melt
+    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=['cholesterol', 'gluc', 'smoke', 'alco', 'active', 'overweight'])
     
-
+    #Convertir la columna "value" en str
+    df_cat["value"] = df_cat["value"].astype(str)
+    
+    # 6
+    #Agrupar y reformatear la Data
+    df_cat['total'] = 1
+    df_cat = df_cat.groupby(['cardio', 'variable', 'value'], as_index=False).count()
+    df_cat = df_cat.rename(columns={'total': 'count'})
+       
     # 7
-
-
+    # Crear un gráfico categórico usando seaborn
+    fig = sns.catplot(x='variable', y='count', hue='value', col='cardio', data=df_cat, kind='bar', height=5, aspect=1)
 
     # 8
-    fig = None
-
+    # Obtener la figura de salida y almacenarla en una variable fig
+    fig = fig = fig.fig
 
     # 9
     fig.savefig('catplot.png')
     return fig
 
-
 # 10
 def draw_heat_map():
     # 11
-    df_heat = None
+    # Limpiar los datos de la variable df_heat
+    df_heat = df[
+        (df['height'] >= df['height'].quantile(0.025)) & 
+        (df['height'] <= df['height'].quantile(0.975)) &
+        (df['weight'] >= df['weight'].quantile(0.025)) & 
+        (df['weight'] <= df['weight'].quantile(0.975))
+    ]
 
     # 12
-    corr = None
+    # Calcular la matrix de correlación
+    corr = df_heat.corr()
 
     # 13
-    mask = None
-
-
+    # Generar una máscara para el triángulo ascendente y almacenar en la variable mask
+    mask = np.triu(np.ones_like(corr, dtype=bool))
 
     # 14
-    fig, ax = None
+    # Cagar la figura de Matplotlib
+    fig, ax = plt.subplots(figsize=(10, 8))
 
     # 15
-
-
+    # Graficar la matrix de correlación
+    sns.heatmap(corr, mask=mask, fmt=".2f", cmap='coolwarm', square=True)
+    
+    # Añadir anotaciones manualmente
+    for i in range(len(corr)):
+        for j in range(len(corr)):
+            if not mask[i, j]:  # Solo anotar los valores visibles
+                ax.text(j + 0.5, i + 0.5, f"{corr.iloc[i, j]:.2f}", 
+                        ha='center', va='center', color='black')
+    # Títulos
+    plt.title('Heat Map of Correlation Matrix')
+    plt.show()
 
     # 16
     fig.savefig('heatmap.png')
     return fig
+
